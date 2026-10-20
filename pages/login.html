@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>GovShield — Secure Access</title>
+<style>
+  :root {
+    --bg: #0d1220;
+    --panel: #131a2c;
+    --accent: #6c5ce7;
+    --accent2: #4f8cff;
+    --danger: #ff4d5e;
+    --text: #e6e9f2;
+    --muted: #8b93a7;
+    --border: #232c45;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Segoe UI", Tahoma, sans-serif; }
+  body {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background:
+      radial-gradient(600px 400px at 20% 20%, rgba(79,140,255,.12), transparent 60%),
+      radial-gradient(600px 400px at 80% 80%, rgba(108,92,231,.15), transparent 60%),
+      var(--bg);
+    color: var(--text);
+    padding: 20px;
+  }
+  /* subtle grid backdrop */
+  body::before {
+    content: "";
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
+    background-size: 42px 42px;
+    pointer-events: none;
+  }
+  .card {
+    position: relative;
+    width: 100%;
+    max-width: 420px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 40px 36px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.55);
+    z-index: 1;
+  }
+  .card::before {
+    content: "";
+    position: absolute; inset: -1px;
+    border-radius: 16px;
+    padding: 1px;
+    background: linear-gradient(135deg, var(--accent), transparent 40%, transparent 60%, var(--accent2));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+  .logo {
+    display: flex; align-items: center; gap: 12px;
+    justify-content: center;
+    margin-bottom: 6px;
+  }
+  .logo .shield {
+    width: 46px; height: 46px;
+    border-radius: 12px;
+    display: grid; place-items: center;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    box-shadow: 0 6px 18px rgba(108,92,231,.45);
+  }
+  .logo .shield svg { width: 26px; height: 26px; fill: #fff; }
+  .logo h1 { font-size: 24px; letter-spacing: .5px; }
+  .logo h1 span { color: var(--accent2); }
+  .subtitle {
+    text-align: center;
+    color: var(--muted);
+    font-size: 13.5px;
+    margin-bottom: 28px;
+  }
+  .field { margin-bottom: 18px; }
+  .field label {
+    display: block;
+    font-size: 12.5px;
+    color: var(--muted);
+    margin-bottom: 7px;
+    letter-spacing: .3px;
+  }
+  .field .wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  .field input {
+    width: 100%;
+    background: #0a0f1c;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 13px 14px 13px 44px;
+    color: var(--text);
+    font-size: 14.5px;
+    outline: none;
+    transition: border-color .2s, box-shadow .2s;
+  }
+  .field input::placeholder { color: #55607a; }
+  .field input:focus {
+    border-color: var(--accent2);
+    box-shadow: 0 0 0 3px rgba(79,140,255,.18);
+  }
+  .field .icon {
+    position: absolute;
+    left: 14px;
+    width: 18px; height: 18px;
+    fill: #55607a;
+    pointer-events: none;
+  }
+  .toggle-eye {
+    position: absolute;
+    right: 12px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    display: grid; place-items: center;
+  }
+  .toggle-eye svg { width: 18px; height: 18px; fill: #55607a; }
+  .toggle-eye:hover svg { fill: var(--accent2); }
+  .row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 22px;
+    font-size: 13px;
+  }
+  .row label { color: var(--muted); display: flex; align-items: center; gap: 7px; cursor: pointer; }
+  .row input[type="checkbox"] { accent-color: var(--accent); width: 15px; height: 15px; cursor: pointer; }
+  .row a { color: var(--accent2); text-decoration: none; }
+  .row a:hover { text-decoration: underline; }
+  .btn {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #fff;
+    cursor: pointer;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    box-shadow: 0 8px 24px rgba(108,92,231,.35);
+    transition: transform .15s, box-shadow .15s, filter .15s;
+    letter-spacing: .3px;
+  }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(108,92,231,.5); filter: brightness(1.08); }
+  .btn:active { transform: translateY(0); }
+  .status {
+    margin-top: 14px;
+    text-align: center;
+    font-size: 13px;
+    min-height: 18px;
+  }
+  .status.error { color: var(--danger); }
+  .status.ok { color: #3ddc84; }
+  .secure-note {
+    margin-top: 26px;
+    text-align: center;
+    font-size: 12px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+  .secure-note svg { width: 13px; height: 13px; fill: #3ddc84; }
+  .divider {
+    display: flex; align-items: center; gap: 12px;
+    margin: 24px 0 18px;
+    color: #55607a;
+    font-size: 12px;
+  }
+  .divider::before, .divider::after {
+    content: ""; flex: 1; height: 1px; background: var(--border);
+  }
+  .sso {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-size: 14px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    transition: border-color .2s, background .2s;
+  }
+  .sso:hover { border-color: var(--accent2); background: rgba(79,140,255,.06); }
+  .sso svg { width: 18px; height: 18px; }
+</style>
+</head>
+<body>
+  <form class="card" id="loginForm" autocomplete="off">
+    <div class="logo">
+      <div class="shield">
+        <svg viewBox="0 0 24 24"><path d="M12 2 4 5v6c0 5 3.4 9.3 8 11 4.6-1.7 8-6 8-11V5l-8-3zm0 5 4 1.7V11c0 3.2-1.7 6-4 7.2C9.7 17 8 14.2 8 11V8.7L12 7z"/></svg>
+      </div>
+      <h1>Gov<span>Shield</span></h1>
+    </div>
+    <p class="subtitle">Secure access for government security operations</p>
+
+    <div class="field">
+      <label for="username">Officer ID / Email</label>
+      <div class="wrap">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4zm0 2c-4 0-8 2-8 5v3h16v-3c0-3-4-5-8-5z"/></svg>
+        <input type="text" id="username" placeholder="e.g. officer@govshield.gov" required />
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="password">Password</label>
+      <div class="wrap">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5zm-3 8V7a3 3 0 1 1 6 0v3H9z"/></svg>
+        <input type="password" id="password" placeholder="Enter your password" required />
+        <button type="button" class="toggle-eye" id="togglePass" aria-label="Show password">
+          <svg viewBox="0 0 24 24" id="eyeIcon"><path d="M12 5C5 5 2 12 2 12s3 7 10 7 10-7 10-7-3-7-10-7zm0 11a4 4 0 1 1 4-4 4 4 0 0 1-4 4zm0-6a2 2 0 1 0 2 2 2 2 0 0 0-2-2z"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="row">
+      <label><input type="checkbox" id="remember" /> Remember me</label>
+      <a href="#">Forgot password?</a>
+    </div>
+
+    <button type="submit" class="btn">Sign In Securely</button>
+    <p class="status" id="status"></p>
+
+    <div class="divider">or</div>
+    <button type="button" class="sso" id="ssoBtn">
+      <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M23 12.2c0-.8-.1-1.6-.2-2.3H12v4.5h6.2a5.3 5.3 0 0 1-2.3 3.5v2.9h3.7A11 11 0 0 0 23 12.2z"/><path fill="#34A853" d="M12 23.5c2.9 0 5.4-1 7.2-2.6l-3.5-2.7a6.9 6.9 0 0 1-10.3-3.7H1.8v2.9A11.5 11.5 0 0 0 12 23.5z"/><path fill="#FBBC05" d="M5.4 14.5a6.9 6.9 0 0 1 0-4.4V7.2H1.8a11.5 11.5 0 0 0 0 10.3z"/><path fill="#EA4335" d="M12 4.7c1.6 0 3.1.6 4.2 1.7l3.2-3.2A11.5 11.5 0 0 0 1.8 7.2l3.6 2.9A6.9 6.9 0 0 1 12 4.7z"/></svg>
+      Sign in with Government SSO
+    </button>
+
+    <div class="secure-note">
+      <svg viewBox="0 0 24 24"><path d="M12 2 4 5v6c0 5 3.4 9.3 8 11 4.6-1.7 8-6 8-11V5l-8-3z"/></svg>
+      256-bit encrypted &nbsp;·&nbsp; Zero-trust authentication
+    </div>
+  </form>
+
+<script>
+  const form = document.getElementById("loginForm");
+  const statusEl = document.getElementById("status");
+  const passInput = document.getElementById("password");
+  const toggle = document.getElementById("togglePass");
+
+  // Show / hide password
+  toggle.addEventListener("click", () => {
+    const shown = passInput.type === "text";
+    passInput.type = shown ? "password" : "text";
+    toggle.querySelector("svg").innerHTML = shown
+      ? '<path d="M12 5C5 5 2 12 2 12s3 7 10 7 10-7 10-7-3-7-10-7zm0 11a4 4 0 1 1 4-4 4 4 0 0 1-4 4zm0-6a2 2 0 1 0 2 2 2 2 0 0 0-2-2z"/>'
+      : '<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7S2 12 2 12zm10 4a4 4 0 1 0-4-4 4 4 0 0 0 4 4zm0-6a2 2 0 1 1 2 2 2 2 0 0 1-2-2zm10.7 11.3-1.4 1.4L2.3 3.7 3.7 2.3z"/>';
+  });
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const user = document.getElementById("username").value.trim();
+    const pass = passInput.value;
+    statusEl.className = "status";
+    statusEl.textContent = "";
+
+    if (!user || !pass) {
+      statusEl.classList.add("error");
+      statusEl.textContent = "⚠ Please fill in all fields.";
+      return;
+    }
+    if (pass.length < 6) {
+      statusEl.classList.add("error");
+      statusEl.textContent = "⚠ Password must be at least 6 characters.";
+      return;
+    }
+    statusEl.classList.add("ok");
+    statusEl.textContent = "✓ Authenticated. Redirecting to Threat Map…";
+    // TODO: connect this to your real backend authentication
+  });
+
+  document.getElementById("ssoBtn").addEventListener("click", () => {
+    statusEl.className = "status ok";
+    statusEl.textContent = "✓ Redirecting to Government SSO…";
+  });
+</script>
+</body>
+</html>
